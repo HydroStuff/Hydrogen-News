@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrogen News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0f0f0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: #1a1a1a;
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 20px;
+            width: 100%;
+        }
+
+        .logo-area { 
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo-img {
+            height: 3.3rem; 
+        }
+
+        .header-logo-text { 
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #4a9eff;
+        }
+
+        main {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .news-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .article-card {
+            background: linear-gradient(
+                rgba(15, 15, 15, 0) 0%,
+                rgba(15, 15, 15, 0.8) 70%,
+                rgba(15, 15, 15, 1) 100%
+            ), url('https://via.placeholder.com/800x450.png?text=Loading+Image');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem 1.5rem 1.5rem;
+            aspect-ratio: 20 / 9;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                transparent 0%,
+                rgba(15, 15, 15, 0.7) 60%,
+                rgba(15, 15, 15, 0.95) 100%
+            );
+            z-index: 1;
+        }
+
+        .article-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .article-title {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-align: left;
+        }
+
+        .article-excerpt {
+            color: #ccc;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .read-more {
+            color: #4a9eff;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 2rem 2rem 1.5rem 2rem;
+            flex-shrink: 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 1rem;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .close-btn:hover {
+            color: #4a9eff;
+        }
+
+        .modal-body {
+            color: #ccc;
+            line-height: 1.6;
+            font-size: 1rem;
+            padding: 1.5rem 2rem 2rem 2rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+        }
+        .modal-body p:last-child {
+            margin-bottom: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-area">
+                <img src="https://cdn.discordapp.com/attachments/1248613103780761707/1379622535230128168/SPNYkpe.png?ex=6840e91c&is=683f979c&hm=41e62cbbf0e89cce72be1d137bc068a2bc5d2e9d63408fc2a9b95082d0cfecd3&" alt="Hydrogen News Logo" class="header-logo-img">
+                <span class="header-logo-text">Hydrogen News</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" id="aboutLink">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="news-grid"></div>
+        </div>
+    </main>
+
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"></h2>
+                <button class="close-btn" onclick="closeModal('modal1')">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z" fill="currentColor"></path> </g></svg>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"></h2>
+                <button class="close-btn" onclick="closeModal('modal2')">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z" fill="currentColor"></path> </g></svg>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="modal3" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"></h2>
+                <button class="close-btn" onclick="closeModal('modal3')">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z" fill="currentColor"></path> </g></svg>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="aboutModalTitle"></h2>
+                <button class="close-btn" onclick="closeModal('aboutModal')">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z" fill="currentColor"></path> </g></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="aboutModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const articlesData = [
+            {
+                imageUrl: 'https://cdn.discordapp.com/avatars/1359225510399447280/e263e66e3de1e8f4e99c5ad7179e948f.png?size=1024', 
+                title: 'Man went missing after refunding Adless',
+                excerpt: 'Beloved community member Sen has mysteriously vanished after allegedly refunding a 3-month key.',
+                modalId: 'modal1',
+                modalBodyHTML: `
+                    <p>The Hydrogen community has been left shocked after an, arguably "beloved," user, Sen, has inexplicably ceased to exist. Witnesses, who wish to remain anonymous for reasons that are becoming increasingly clear, reported last seeing Sen opening a ticket to request a refund for his adless key.</p>
+                    <p>Within minutes, two staff members reportedly escorted the user from the ticket channel. “yeah no he is DONE. lil bro is NOT getting out of this one fr 😭🙏" stated one staff member who spoke on condition of anonymity, another one stating, "He is going to be taken out back. Gladius will not tolerate such behavior.”</p>
+                    <p>Multiple server members reported hearing what several described as "unmistakably the sound of a bullet connecting with a human skull," though Saba quickly clarified this was likely just someone playing Fortnite.</p>
+                    <p>When asked for a comment, main developer Gladius declined to address Sen's whereabouts directly, instead telling us to "purchase adless on hydrogen.lat" and reminding the community that no further refunds will be issued.</p>
+                    <p>The incident has left the community in fear, with refund requests dropping by 94% and adless key purchases mysteriously surging. Several users have reportedly deleted their criticism of recent server updates and staff members, citing "personal growth" as the main reason.</p>
+                `
+            },
+            {
+                imageUrl: 'https://cdn.discordapp.com/attachments/1248613103780761707/1379667947953586226/HzFCt1Z.png?ex=68411367&is=683fc1e7&hm=190e865bef2ab3fce9b6d7a1694d880dcd5f7601c0a50407981fc9a5e47f1d28&', 
+                title: 'Staff Member Discovers Revolutionary "Outside" Feature in Latest Hydrogen Update',
+                excerpt: '"this is actually so cool dude" Stated Saba after taking a walk in the park.',
+                modalId: 'modal2',
+                modalBodyHTML: `
+                    <p>Staff member Saba has reportedly discovered a hidden Hydrogen feature codenamed "Outside”. “this is actually so cool dude," stated a visibly shocked Saba.</p>
+                    <p>After exploring what sources described as a "Park," Saba was extremely impressed with the new feature. He stated "render distance is actually insane, what is this like 128 chunks?" He also praised the advanced haptic feedback, commenting, "how did they make the grass effects so realistic is this unreal engine or something?”</p>
+                    <p>Saba discovered the new feature after getting tired of watching people argue in #general and “closed his laptop and went outside” triggering what he described as a "full immersion experience" that Gladius had apparently implemented without announcement."</p>
+                    <p>Gladius has not made a comment on the new feature, and the community reactions have been mixed. Some users expressed concern over potential "UV radiation from the sun object" and "unpredictable pollen particle effects." One anonymous user asked, "does outside have custom uis?” Another asked, "bro pls tell is outside on android.”</p>
+                    <p>Multiple members have attempted to replicate Saba's discovery, with early beta testers reporting "photorealistic PBR materials" and "3d ambient audio." However, many users remain skeptical, with one stating, "nahh gladius is trolling us bro 😭 i am NOT going outside.”</p>
+
+                `
+            },
+            {
+                imageUrl: 'https://cdn.discordapp.com/attachments/1248613103780761707/1379678827600543755/7kwBE0c.png?ex=68411d89&is=683fcc09&hm=c7442e2760e9ce7e2826eba6d94a3b44f6cfbdd881cb8004b9416bcd2bf73097&', 
+                title: 'Gladius Pulls an Elon on the Server',
+                excerpt: 'Gladius has decided to "make free speech and comedy legal again"',
+                modalId: 'modal3',
+                modalBodyHTML: `
+                    <p>Hydrogen's main (and only) developer Gladius announced a dramatic overhaul of server rules, eliminating what he called "unnecessary rules” to improve efficiency.</p>
+                    <p>The controversial update removed basically every rule, with Gladius stating "Make Hydrogen Great Again." Gladius believes that his server filled with underage, racist, transphobic, homophobic, and sexist children doesn't need any moderation whatsoever. "This is about free speech" Gladius explained. "Why waste time managing staff when it could be used to add more ads to our key system”</p>
+                    <p>Most members have praised the increased "authenticity" of conversations, with one user stating, "Finally, I can express my true self without fear of consequences." However, critics worry about potential side effects, including what few sane staff refer to as "the X-ification of Hydrogen.”</p>
+                    <p>Server activity has reportedly increased by 300%, though several staff members have mysteriously disappeared from the member list.</p>
+                `
+            }
+        ];
+
+        const aboutModalData = {
+            title: "About This \"News\" Site",
+            description: "This is a satire website. Please DM @notminiluv if you want yourself removed from here."
+        };
+
+        const mainElement = document.querySelector('main');
+
+        function setMainScroll(enabled) {
+            if (mainElement) {
+                mainElement.style.overflowY = enabled ? 'auto' : 'hidden';
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                const articleForModal = articlesData.find(art => art.modalId === modalId);
+
+                if (articleForModal) {
+                    const modalTitleElement = modal.querySelector('.modal-title');
+                    if (modalTitleElement) {
+                        modalTitleElement.textContent = articleForModal.title;
+                    }
+                    const modalBodyElement = modal.querySelector('.modal-body');
+                    if (modalBodyElement && articleForModal.modalBodyHTML) {
+                        modalBodyElement.innerHTML = articleForModal.modalBodyHTML;
+                        modalBodyElement.scrollTop = 0;
+                    }
+                }
+
+                modal.classList.add('active');
+                setMainScroll(false);
+            }
+        }
+
+        function closeActiveModal(modalElement) {
+            if (modalElement && modalElement.classList.contains('active')) {
+                modalElement.classList.remove('active');
+                if (!document.querySelector('.modal.active')) {
+                    setMainScroll(true);
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            closeActiveModal(modal);
+        }
+
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeActiveModal(event.target);
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                closeActiveModal(activeModal);
+            }
+        });
+
+        const aboutLink = document.getElementById('aboutLink');
+        if (aboutLink) {
+            aboutLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                const aboutModalTitleEl = document.getElementById('aboutModalTitle');
+                const aboutModalBodyEl = document.getElementById('aboutModalBody');
+
+                if(aboutModalTitleEl) aboutModalTitleEl.textContent = aboutModalData.title;
+
+                if(aboutModalBodyEl){
+                    aboutModalBodyEl.innerHTML = '';
+                    const descriptionParagraphs = aboutModalData.description.split('\n');
+                    descriptionParagraphs.forEach(pText => {
+                        if (pText.trim()) {
+                            const p = document.createElement('p');
+                            p.textContent = pText.trim();
+                            aboutModalBodyEl.appendChild(p);
+                        }
+                    });
+                    aboutModalBodyEl.scrollTop = 0;
+                }
+                openModal('aboutModal');
+            });
+        }
+
+        function renderArticleCards() {
+            const newsGrid = document.querySelector('.news-grid');
+            if (!newsGrid) {
+                console.error('Error: .news-grid element not found.');
+                return;
+            }
+            newsGrid.innerHTML = '';
+
+            articlesData.forEach(article => {
+                const cardElement = document.createElement('article');
+                cardElement.className = 'article-card';
+                cardElement.style.backgroundImage = `
+                    linear-gradient(
+                        rgba(15, 15, 15, 0) 0%,
+                        rgba(15, 15, 15, 0.8) 70%,
+                        rgba(15, 15, 15, 1) 100%
+                    ),
+                    url('${article.imageUrl}')
+                `;
+                cardElement.innerHTML = `
+                    <h2 class="article-title">${article.title}</h2>
+                    <p class="article-excerpt">${article.excerpt}</p>
+                    <span class="read-more" onclick="openModal('${article.modalId}')">Read More</span>
+                `;
+                newsGrid.appendChild(cardElement);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', renderArticleCards);
+    </script>
+</body>
+</html>
